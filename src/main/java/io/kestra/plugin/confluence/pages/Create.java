@@ -1,10 +1,6 @@
 package io.kestra.plugin.confluence.pages;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -162,16 +158,7 @@ public class Create extends AbstractConfluenceTask implements RunnableTask<Creat
         body.put("representation", "storage");
         body.put("value", htmlBody);
 
-        var queryParams = new LinkedHashMap<String, String>();
-        queryParams.put("embedded", rEmbedded.toString());
-        queryParams.put("private", rMakePrivate.toString());
-        queryParams.put("root-level", rRootLevel.toString());
-        var query = queryParams.entrySet().stream()
-            .map(
-                entry -> URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8)
-                    + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8)
-            )
-            .collect(Collectors.joining("&"));
+        var query = "embedded=%s&private=%s&root-level=%s".formatted(rEmbedded, rMakePrivate, rRootLevel);
 
         var response = send(runContext, "POST", URI.create("%s/pages?%s".formatted(apiBaseUrl, query)), payload.toString());
         var responseBody = response.getBody() != null ? response.getBody() : "";
